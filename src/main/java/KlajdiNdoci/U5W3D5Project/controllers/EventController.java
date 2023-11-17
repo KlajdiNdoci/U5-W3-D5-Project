@@ -56,6 +56,7 @@ public class EventController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('ORGANIZER')")
     @ResponseStatus(HttpStatus.CREATED)
     public Event createEvent(@RequestBody @Validated NewEventDTO body, BindingResult validation) {
         if (validation.hasErrors()) {
@@ -64,4 +65,5 @@ public class EventController {
             return eventService.createEvent(body);
         }
     }
+
 }
