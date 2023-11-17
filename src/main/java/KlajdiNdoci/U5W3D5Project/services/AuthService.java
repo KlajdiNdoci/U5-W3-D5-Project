@@ -45,7 +45,7 @@ public class AuthService {
         newUser.setUsername(body.username());
         newUser.setName(body.name());
         newUser.setSurname(body.surname());
-        newUser.setRole(UserRole.BASIC);
+        newUser.setRole(UserRole.USER);
         newUser.setEmail(body.email());
         newUser.setPassword(bcrypt.encode(body.password()));
         return userRepository.save(newUser);

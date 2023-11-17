@@ -49,7 +49,7 @@ public class UserService {
         found.setEmail(body.email());
         found.setSurname(body.surname());
         found.setName(body.name());
-        found.setRole(UserRole.BASIC);
+        found.setRole(UserRole.USER);
         found.setPassword(body.password());
         return userRepository.save(found);
     }
