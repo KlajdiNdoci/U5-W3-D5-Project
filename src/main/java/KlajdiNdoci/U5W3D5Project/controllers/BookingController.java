@@ -1,7 +1,6 @@
 package KlajdiNdoci.U5W3D5Project.controllers;
 
 import KlajdiNdoci.U5W3D5Project.entities.Booking;
-import KlajdiNdoci.U5W3D5Project.entities.Event;
 import KlajdiNdoci.U5W3D5Project.entities.User;
 import KlajdiNdoci.U5W3D5Project.exceptions.BadRequestException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewBookingDTO;
@@ -18,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/bookings")
@@ -58,24 +56,10 @@ public class BookingController {
         }
     }
 
-    @GetMapping("/user")
-    public List<Booking> getUserBookings(@AuthenticationPrincipal User currentUser) {
-        User user = userService.findByEmail(currentUser.getEmail());
-        return bookingService.getUserBookings(user);
-    }
-
-    @GetMapping("/event/{eventId}")
-    public List<Booking> getEventBookings(@PathVariable long eventId) {
-        Event event = eventService.findById(eventId);
-        return bookingService.getEventBookings(event);
-    }
-
-    @DeleteMapping("/cancel/{eventId}")
+    @DeleteMapping("/mybookings/{bookingId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelBooking(@PathVariable long eventId,
-                              @AuthenticationPrincipal User currentUser) {
-        User user = userService.findByEmail(currentUser.getUsername());
-        Event event = eventService.findById(eventId);
-        bookingService.cancelBooking(user, event);
+    public void cancelBooking(@PathVariable Long bookingId, @AuthenticationPrincipal User currentUser) {
+        bookingService.cancelBooking(currentUser, bookingId);
     }
+
 }

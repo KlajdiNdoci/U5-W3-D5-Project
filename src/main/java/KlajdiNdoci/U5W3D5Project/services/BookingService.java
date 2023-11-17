@@ -6,6 +6,7 @@ import KlajdiNdoci.U5W3D5Project.entities.User;
 import KlajdiNdoci.U5W3D5Project.enums.EventAvailability;
 import KlajdiNdoci.U5W3D5Project.exceptions.BadRequestException;
 import KlajdiNdoci.U5W3D5Project.exceptions.NotFoundException;
+import KlajdiNdoci.U5W3D5Project.exceptions.UnauthorizedException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewBookingDTO;
 import KlajdiNdoci.U5W3D5Project.repositories.BookingRepository;
 import KlajdiNdoci.U5W3D5Project.repositories.EventRepository;
@@ -18,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
 
 @Service
 public class BookingService {
@@ -56,19 +56,27 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public List<Booking> getUserBookings(User user) {
-        return bookingRepository.findByUser(user);
-    }
 
-    public List<Booking> getEventBookings(Event event) {
-        return bookingRepository.findByEvent(event);
-    }
+    public void cancelBooking(User currentUser, Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(bookingId));
+        if (currentUser.getId() != booking.getUser().getId()) {
+            throw new UnauthorizedException("You don't have the authorization to cancel this booking");
+        }
 
-    public void cancelBooking(User user, Event event) {
-        Booking booking = bookingRepository.findByUserAndEvent(user, event).orElseThrow(() -> new NotFoundException("Booking not found for the user and event."));
-        event.getBookings().remove(booking);
-        event.updateAvailability();
-        eventRepository.save(event);
         bookingRepository.delete(booking);
+    }
+
+    public Booking findById(long id) throws NotFoundException {
+        Booking found = null;
+        for (Booking booking : bookingRepository.findAll()) {
+            if (booking.getId() == id) {
+                found = booking;
+            }
+        }
+        if (found == null) {
+            throw new NotFoundException(id);
+        } else {
+            return found;
+        }
     }
 }
