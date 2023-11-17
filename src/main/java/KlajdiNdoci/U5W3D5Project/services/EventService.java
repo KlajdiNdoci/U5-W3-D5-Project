@@ -1,6 +1,7 @@
 package KlajdiNdoci.U5W3D5Project.services;
 
 import KlajdiNdoci.U5W3D5Project.entities.Event;
+import KlajdiNdoci.U5W3D5Project.enums.EventAvailability;
 import KlajdiNdoci.U5W3D5Project.enums.UserRole;
 import KlajdiNdoci.U5W3D5Project.exceptions.NotFoundException;
 import KlajdiNdoci.U5W3D5Project.exceptions.UnauthorizedException;
@@ -39,6 +40,7 @@ public class EventService {
                 newEvent.setDate(body.date());
                 newEvent.setLocality(body.locality());
                 newEvent.setSeats(body.seats());
+                newEvent.setAvailability(EventAvailability.AVAILABLE);
                 return eventRepository.save(newEvent);
             } else {
                 throw new UnauthorizedException("Only a ORGANIZER can create events");
