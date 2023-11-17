@@ -1,6 +1,7 @@
 package KlajdiNdoci.U5W3D5Project.entities;
 
 import KlajdiNdoci.U5W3D5Project.enums.EventAvailability;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,28 +30,36 @@ public class Event {
 
     private int seats;
 
+    private String image;
+
     @Enumerated(EnumType.STRING)
     private EventAvailability availability;
 
-    @ManyToMany(mappedBy = "events")
+    @OneToMany(mappedBy = "event")
+    @JsonIgnore
     @ToString.Exclude
-    private List<User> users;
+    private List<Booking> bookings;
 
-    public Event(String title, String description, LocalDate date, String locality, int seats, List<User> users) {
+
+    public Event(String title, String description, LocalDate date, String locality, int seats, List<Booking> bookings, String image) {
         this.title = title;
         this.description = description;
         this.date = date;
         this.locality = locality;
         this.seats = seats;
-        this.users = users;
+        this.image = image;
+        this.bookings = bookings;
         updateAvailability();
     }
 
     public void updateAvailability() {
-        if (users.size() >= seats) {
-            availability = EventAvailability.SOLD_OUT;
+        int totalSeats = getSeats();
+        int bookedSeats = bookings.stream().mapToInt(Booking::getNumberOfSeats).sum();
+
+        if (bookedSeats >= totalSeats) {
+            setAvailability(EventAvailability.SOLD_OUT);
         } else {
-            availability = EventAvailability.AVAILABLE;
+            setAvailability(EventAvailability.AVAILABLE);
         }
     }
 }

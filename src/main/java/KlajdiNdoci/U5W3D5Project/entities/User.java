@@ -29,19 +29,14 @@ public class User implements UserDetails {
     private String name;
     private String surname;
     private String email;
-    private String avatar;
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRoles role;
-    @ManyToMany
-    @JoinTable(
-            name = "user_event",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "event_id")
-    )
+
+    @OneToMany(mappedBy = "user")
     @JsonIgnore
     @ToString.Exclude
-    private List<Event> events;
+    private List<Booking> bookings;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
