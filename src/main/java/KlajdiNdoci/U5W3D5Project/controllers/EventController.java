@@ -13,7 +13,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -71,5 +73,24 @@ public class EventController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void findByIdAndDeleteMyEvent(@PathVariable long id, @AuthenticationPrincipal User currentUser) {
         eventService.findByIdAndDeleteMyEvent(id, currentUser);
+    }
+
+    @PostMapping("/{id}/upload")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Event upload(@RequestParam("image") MultipartFile body, @PathVariable long id) throws IOException {
+        try {
+            return eventService.uploadPicture(body, id);
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    @PostMapping("/myevents/{id}/upload")
+    public Event uploadEventImage(@AuthenticationPrincipal User currentUser, @RequestParam("image") MultipartFile body, @PathVariable long id) throws IOException {
+        try {
+            return eventService.uploadPictureMyEvent(body, id, currentUser);
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
     }
 }

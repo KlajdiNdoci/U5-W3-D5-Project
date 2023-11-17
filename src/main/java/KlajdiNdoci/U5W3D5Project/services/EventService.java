@@ -7,13 +7,17 @@ import KlajdiNdoci.U5W3D5Project.exceptions.NotFoundException;
 import KlajdiNdoci.U5W3D5Project.exceptions.UnauthorizedException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewEventDTO;
 import KlajdiNdoci.U5W3D5Project.repositories.EventRepository;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -24,6 +28,9 @@ public class EventService {
 
     @Autowired
     private EventRepository eventRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     public Page<Event> getEvents(int page, int size, String orderBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
@@ -74,4 +81,28 @@ public class EventService {
         return eventRepository.findByCreator(currentUser);
     }
 
+    private String getPublicIdFromUrl(String imageUrl) {
+        int startIndex = imageUrl.lastIndexOf("/") + 1;
+        int endIndex = imageUrl.lastIndexOf(".");
+        return imageUrl.substring(startIndex, endIndex);
+    }
+
+    public Event uploadPicture(MultipartFile file, long id) throws IOException {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundException(id));
+        String url = (String) cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+        event.setImage(url);
+        eventRepository.save(event);
+        return event;
+    }
+
+    public Event uploadPictureMyEvent(MultipartFile file, long id, User currentUser) throws IOException {
+        Event foundEvent = findById(id);
+        if (currentUser.getId() != foundEvent.getCreator().getId()) {
+            throw new UnauthorizedException("You don't have the authorization to upload a picture on this event");
+        }
+        String url = (String) cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()).get("url");
+        foundEvent.setImage(url);
+        eventRepository.save(foundEvent);
+        return foundEvent;
+    }
 }
