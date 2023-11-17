@@ -3,7 +3,9 @@ package KlajdiNdoci.U5W3D5Project.controllers;
 import KlajdiNdoci.U5W3D5Project.entities.Booking;
 import KlajdiNdoci.U5W3D5Project.entities.Event;
 import KlajdiNdoci.U5W3D5Project.entities.User;
+import KlajdiNdoci.U5W3D5Project.exceptions.BadRequestException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewBookingDTO;
+import KlajdiNdoci.U5W3D5Project.repositories.EventRepository;
 import KlajdiNdoci.U5W3D5Project.services.BookingService;
 import KlajdiNdoci.U5W3D5Project.services.EventService;
 import KlajdiNdoci.U5W3D5Project.services.UserService;
@@ -11,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -28,6 +32,8 @@ public class BookingController {
 
     @Autowired
     private EventService eventService;
+    @Autowired
+    private EventRepository eventRepository;
 
     @GetMapping("")
     public Page<Booking> getBookings(@RequestParam(defaultValue = "0") int page,
@@ -36,20 +42,25 @@ public class BookingController {
         return bookingService.getBookings(page, size, orderBy);
     }
 
-    @PostMapping("/create")
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public Booking createBooking(@RequestBody @Validated NewBookingDTO body,
-                                 @AuthenticationPrincipal User currentUser) {
-        User user = userService.findByEmail(currentUser.getUsername());
-        Event event = eventService.findById(body.eventId());
-        int numberOfSeats = body.numberOfSeats();
-
-        return bookingService.createBooking(user, event, numberOfSeats);
+                                 @AuthenticationPrincipal User currentUser,
+                                 BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException(validation.getAllErrors());
+        } else {
+            try {
+                return bookingService.createBooking(body, currentUser);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @GetMapping("/user")
     public List<Booking> getUserBookings(@AuthenticationPrincipal User currentUser) {
-        User user = userService.findByEmail(currentUser.getUsername());
+        User user = userService.findByEmail(currentUser.getEmail());
         return bookingService.getUserBookings(user);
     }
 

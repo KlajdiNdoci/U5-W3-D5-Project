@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 public record NewEventDTO(
         @NotEmpty(message = "Title cannot be empty")
-        @Size(min = 3, max = 255, message = "Title must have between 3 and 255 characters")
+        @Size(min = 3, max = 30, message = "Title must have between 3 and 30 characters")
         String title,
 
         @NotEmpty(message = "Description cannot be empty")

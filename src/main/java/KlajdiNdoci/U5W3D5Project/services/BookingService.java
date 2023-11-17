@@ -6,6 +6,7 @@ import KlajdiNdoci.U5W3D5Project.entities.User;
 import KlajdiNdoci.U5W3D5Project.enums.EventAvailability;
 import KlajdiNdoci.U5W3D5Project.exceptions.BadRequestException;
 import KlajdiNdoci.U5W3D5Project.exceptions.NotFoundException;
+import KlajdiNdoci.U5W3D5Project.payloads.NewBookingDTO;
 import KlajdiNdoci.U5W3D5Project.repositories.BookingRepository;
 import KlajdiNdoci.U5W3D5Project.repositories.EventRepository;
 import KlajdiNdoci.U5W3D5Project.repositories.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -35,21 +37,22 @@ public class BookingService {
         return bookingRepository.findAll(pageable);
     }
 
-    public Booking createBooking(User user, Event event, int numberOfSeats) {
-        if (event.getAvailability() == EventAvailability.SOLD_OUT) {
+    public Booking createBooking(NewBookingDTO body, User currentUser) throws IOException {
+        Event foundEvent = eventRepository.findById(body.eventId()).orElseThrow(() -> new NotFoundException(body.eventId()));
+        if (foundEvent.getAvailability() == EventAvailability.SOLD_OUT) {
             throw new BadRequestException("The event is sold out.");
         }
 
-        int availableSeats = event.getSeats() - event.getBookings().stream().mapToInt(Booking::getNumberOfSeats).sum();
+        int availableSeats = foundEvent.getSeats() - foundEvent.getBookings().stream().mapToInt(Booking::getNumberOfSeats).sum();
 
-        if (numberOfSeats > availableSeats) {
+        if (body.numberOfSeats() > availableSeats) {
             throw new BadRequestException("Not enough available seats.");
         }
 
-        Booking booking = new Booking(user, event, numberOfSeats);
-        event.getBookings().add(booking);
-        event.updateAvailability();
-        eventRepository.save(event);
+        Booking booking = new Booking(currentUser, foundEvent, body.numberOfSeats());
+        foundEvent.getBookings().add(booking);
+        foundEvent.updateAvailability();
+        eventRepository.save(foundEvent);
         return bookingRepository.save(booking);
     }
 
