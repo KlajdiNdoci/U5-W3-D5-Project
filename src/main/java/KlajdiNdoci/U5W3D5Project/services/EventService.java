@@ -1,6 +1,7 @@
 package KlajdiNdoci.U5W3D5Project.services;
 
 import KlajdiNdoci.U5W3D5Project.entities.Event;
+import KlajdiNdoci.U5W3D5Project.entities.User;
 import KlajdiNdoci.U5W3D5Project.enums.EventAvailability;
 import KlajdiNdoci.U5W3D5Project.exceptions.NotFoundException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewEventDTO;
@@ -16,6 +17,9 @@ import org.springframework.stereotype.Service;
 public class EventService {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private EventRepository eventRepository;
 
     public Page<Event> getEvents(int page, int size, String orderBy) {
@@ -23,7 +27,7 @@ public class EventService {
         return eventRepository.findAll(pageable);
     }
 
-    public Event createEvent(NewEventDTO body) {
+    public Event createEvent(NewEventDTO body, User currentUser) {
         Event newEvent = new Event();
         newEvent.setTitle(body.title());
         newEvent.setDescription(body.description());
@@ -31,6 +35,8 @@ public class EventService {
         newEvent.setLocality(body.locality());
         newEvent.setSeats(body.seats());
         newEvent.setAvailability(EventAvailability.AVAILABLE);
+        newEvent.setCreator(currentUser);
+
         return eventRepository.save(newEvent);
     }
 

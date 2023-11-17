@@ -1,6 +1,7 @@
 package KlajdiNdoci.U5W3D5Project.controllers;
 
 import KlajdiNdoci.U5W3D5Project.entities.Event;
+import KlajdiNdoci.U5W3D5Project.entities.User;
 import KlajdiNdoci.U5W3D5Project.exceptions.BadRequestException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewEventDTO;
 import KlajdiNdoci.U5W3D5Project.services.EventService;
@@ -58,11 +59,11 @@ public class EventController {
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('ORGANIZER')")
     @ResponseStatus(HttpStatus.CREATED)
-    public Event createEvent(@RequestBody @Validated NewEventDTO body, BindingResult validation) {
+    public Event createEvent(@RequestBody @Validated NewEventDTO body, @AuthenticationPrincipal User currentUser, BindingResult validation) {
         if (validation.hasErrors()) {
             throw new BadRequestException(validation.getAllErrors());
         } else {
-            return eventService.createEvent(body);
+            return eventService.createEvent(body, currentUser);
         }
     }
 

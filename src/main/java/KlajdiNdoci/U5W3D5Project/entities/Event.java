@@ -32,6 +32,10 @@ public class Event {
 
     private String image;
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    private User creator;
+
     @Enumerated(EnumType.STRING)
     private EventAvailability availability;
 

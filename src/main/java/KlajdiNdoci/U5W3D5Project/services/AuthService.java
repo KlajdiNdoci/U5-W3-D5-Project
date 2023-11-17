@@ -25,19 +25,19 @@ public class AuthService {
     @Autowired
     private JWTTools jwtTools;
 
-    public String authenticateUser(UserLoginDTO body){
+    public String authenticateUser(UserLoginDTO body) {
         User user = userService.findByEmail(body.email());
-        if(bcrypt.matches(body.password(), user.getPassword())){
+        if (bcrypt.matches(body.password(), user.getPassword())) {
             return jwtTools.createToken(user);
 
-        }else {
+        } else {
             throw new UnauthorizedException("Invalid credentials");
         }
     }
 
     public User saveUser(NewUserDTO body) throws IOException {
 
-        userRepository.findByEmail(body.email()).ifPresent( user -> {
+        userRepository.findByEmail(body.email()).ifPresent(user -> {
             throw new BadRequestException("The email " + user.getEmail() + " has already been used!");
         });
 
@@ -45,7 +45,7 @@ public class AuthService {
         newUser.setUsername(body.username());
         newUser.setName(body.name());
         newUser.setSurname(body.surname());
-        newUser.setRole(UserRole.USER);
+        newUser.setRole(UserRole.ORGANIZER);
         newUser.setEmail(body.email());
         newUser.setPassword(bcrypt.encode(body.password()));
         return userRepository.save(newUser);
