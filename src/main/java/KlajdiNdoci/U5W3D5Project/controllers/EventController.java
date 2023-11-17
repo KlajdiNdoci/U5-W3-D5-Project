@@ -52,8 +52,8 @@ public class EventController {
     }
 
     @GetMapping("/myevents")
-    public List<Event> getMyEvents(@AuthenticationPrincipal List<Event> myEvents) {
-        return myEvents;
+    public List<Event> getMyEvents(@AuthenticationPrincipal User currentUser) {
+        return eventService.findEventsByCreator(currentUser);
     }
 
     @PostMapping("/create")
@@ -67,4 +67,9 @@ public class EventController {
         }
     }
 
+    @DeleteMapping("/myevents/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void findByIdAndDeleteMyEvent(@PathVariable long id, @AuthenticationPrincipal User currentUser) {
+        eventService.findByIdAndDeleteMyEvent(id, currentUser);
+    }
 }
