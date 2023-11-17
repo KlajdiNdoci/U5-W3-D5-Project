@@ -62,4 +62,5 @@ public class Event {
             setAvailability(EventAvailability.AVAILABLE);
         }
     }
+
 }
