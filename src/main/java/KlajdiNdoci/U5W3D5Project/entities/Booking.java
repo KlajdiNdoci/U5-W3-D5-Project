@@ -24,6 +24,11 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event event;
-
     private int numberOfSeats;
+
+    public Booking(User user, Event event, int numberOfSeats) {
+        this.user = user;
+        this.event = event;
+        this.numberOfSeats = numberOfSeats;
+    }
 }
