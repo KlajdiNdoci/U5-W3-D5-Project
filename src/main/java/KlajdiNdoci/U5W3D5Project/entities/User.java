@@ -1,6 +1,6 @@
 package KlajdiNdoci.U5W3D5Project.entities;
 
-import KlajdiNdoci.U5W3D5Project.enums.UserRoles;
+import KlajdiNdoci.U5W3D5Project.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -31,7 +31,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     @Enumerated(EnumType.STRING)
-    private UserRoles role;
+    private UserRole role;
 
     @OneToMany(mappedBy = "user")
     @JsonIgnore

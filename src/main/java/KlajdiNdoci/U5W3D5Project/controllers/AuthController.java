@@ -1,5 +1,12 @@
 package KlajdiNdoci.U5W3D5Project.controllers;
 
+import KlajdiNdoci.U5W3D5Project.entities.User;
+import KlajdiNdoci.U5W3D5Project.exceptions.BadRequestException;
+import KlajdiNdoci.U5W3D5Project.payloads.NewUserDTO;
+import KlajdiNdoci.U5W3D5Project.payloads.UserLoginDTO;
+import KlajdiNdoci.U5W3D5Project.payloads.UserLoginSuccessDTO;
+import KlajdiNdoci.U5W3D5Project.services.AuthService;
+import KlajdiNdoci.U5W3D5Project.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -23,7 +30,7 @@ public class AuthController {
             throw new BadRequestException(validation.getAllErrors());
         }else {
             try {
-                return authService.save(body);
+                return authService.saveUser(body);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

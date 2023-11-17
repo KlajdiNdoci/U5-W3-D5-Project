@@ -1,7 +1,7 @@
 package KlajdiNdoci.U5W3D5Project.services;
 
 import KlajdiNdoci.U5W3D5Project.entities.User;
-import KlajdiNdoci.U5W3D5Project.enums.UserRoles;
+import KlajdiNdoci.U5W3D5Project.enums.UserRole;
 import KlajdiNdoci.U5W3D5Project.exceptions.NotFoundException;
 import KlajdiNdoci.U5W3D5Project.payloads.NewUserDTO;
 import KlajdiNdoci.U5W3D5Project.repositories.UserRepository;
@@ -49,7 +49,7 @@ public class UserService {
         found.setEmail(body.email());
         found.setSurname(body.surname());
         found.setName(body.name());
-        found.setRole(UserRoles.BASIC);
+        found.setRole(UserRole.BASIC);
         found.setPassword(body.password());
         return userRepository.save(found);
     }
